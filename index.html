@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>五行速算</title>
+  <style>
+    :root {
+      --wood: #2f855a;
+      --fire: #e53e3e;
+      --earth: #b7791f;
+      --metal: #718096;
+      --water: #3182ce;
+      --bg: #0f172a;
+      --panel: #1f2937;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #22d3ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(34, 211, 238, 0.2), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(234, 179, 8, 0.2), transparent 25%),
+        radial-gradient(circle at 80% 70%, rgba(56, 189, 248, 0.2), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(960px, 100%);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(6px);
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 32px);
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1 span.icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(59, 130, 246, 0.3));
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    p.lead {
+      margin: 0;
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.5;
+    }
+
+    section.card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text);
+      font-size: 15px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    }
+
+    button {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(59, 130, 246, 0.28);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      background: #e2e8f0;
+      width: fit-content;
+    }
+
+    .traits {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    .formula {
+      display: inline-flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .legend-item {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.02);
+      display: grid;
+      gap: 4px;
+    }
+
+    .legend-item strong {
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    .legend-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .error {
+      color: #fbbf24;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1><span class="icon">五</span>五行速算小工具</h1>
+      <p class="lead">輸入西元年份，依照天干推算「木、火、土、金、水」五行。公式：以 4 為起點，取天干序 (mod 10)，再對應五行。</p>
+    </header>
+
+    <section class="card">
+      <div class="inputs">
+        <label>
+          西元年份
+          <input id="year" type="number" placeholder="例如：1995" min="1" />
+        </label>
+        <label>
+          備註 / 姓名（可選）
+          <input id="note" type="text" placeholder="方便記錄的人名或說明" />
+        </label>
+      </div>
+      <button id="calc">計算五行</button>
+      <p id="message" class="error" aria-live="polite"></p>
+    </section>
+
+    <section class="card result" id="result" aria-live="polite">
+      <div>
+        <div class="badge" id="elementBadge">等待輸入...</div>
+        <div class="traits" id="elementTraits"></div>
+      </div>
+      <div>
+        <strong>推算公式</strong>
+        <div class="formula">
+          <span>天干序 = (年份 − 4) mod 10</span>
+          <span>天干：甲乙丙丁戊己庚辛壬癸</span>
+          <span>五行：木木火火土土金金水水</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <strong>五行對照</strong>
+      <div class="legend">
+        <div class="legend-item" style="border-color: rgba(47,133,90,0.4); background: rgba(47,133,90,0.08);">
+          <strong>木 Wood</strong>
+          <span>甲、乙｜色彩：綠｜特質：成長、規劃、生命力</span>
+        </div>
+        <div class="legend-item" style="border-color: rgba(229,62,62,0.45); background: rgba(229,62,62,0.08);">
+          <strong>火 Fire</strong>
+          <span>丙、丁｜色彩：紅｜特質：熱情、速度、創造力</span>
+        </div>
+        <div class="legend-item" style="border-color: rgba(183,121,31,0.45); background: rgba(183,121,31,0.08);">
+          <strong>土 Earth</strong>
+          <span>戊、己｜色彩：黃｜特質：穩定、承載、協調</span>
+        </div>
+        <div class="legend-item" style="border-color: rgba(113,128,150,0.45); background: rgba(113,128,150,0.08);">
+          <strong>金 Metal</strong>
+          <span>庚、辛｜色彩：白｜特質：精準、效率、規則</span>
+        </div>
+        <div class="legend-item" style="border-color: rgba(49,130,206,0.45); background: rgba(49,130,206,0.08);">
+          <strong>水 Water</strong>
+          <span>壬、癸｜色彩：黑｜特質：智慧、流動、彈性</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const elementLookup = [
+      { key: "wood", label: "木 (Wood)", color: "var(--wood)", stem: "甲、乙", traits: ["規劃、成長導向", "重視方向與理想", "樂於助人、善於啟動"] },
+      { key: "wood", label: "木 (Wood)", color: "var(--wood)", stem: "甲、乙", traits: ["規劃、成長導向", "重視方向與理想", "樂於助人、善於啟動"] },
+      { key: "fire", label: "火 (Fire)", color: "var(--fire)", stem: "丙、丁", traits: ["熱情、敢衝敢闖", "擅長表達、快速行動", "喜歡舞台感與火花"] },
+      { key: "fire", label: "火 (Fire)", color: "var(--fire)", stem: "丙、丁", traits: ["熱情、敢衝敢闖", "擅長表達、快速行動", "喜歡舞台感與火花"] },
+      { key: "earth", label: "土 (Earth)", color: "var(--earth)", stem: "戊、己", traits: ["腳踏實地、務實穩定", "善於整合與協調", "給人安全感、可靠"] },
+      { key: "earth", label: "土 (Earth)", color: "var(--earth)", stem: "戊、己", traits: ["腳踏實地、務實穩定", "善於整合與協調", "給人安全感、可靠"] },
+      { key: "metal", label: "金 (Metal)", color: "var(--metal)", stem: "庚、辛", traits: ["重視規則與效率", "擅長分析、決斷清晰", "追求精準與品質"] },
+      { key: "metal", label: "金 (Metal)", color: "var(--metal)", stem: "庚、辛", traits: ["重視規則與效率", "擅長分析、決斷清晰", "追求精準與品質"] },
+      { key: "water", label: "水 (Water)", color: "var(--water)", stem: "壬、癸", traits: ["思考細膩、感知力強", "適應力高、善於流動", "喜歡知識與探索"] },
+      { key: "water", label: "水 (Water)", color: "var(--water)", stem: "壬、癸", traits: ["思考細膩、感知力強", "適應力高、善於流動", "喜歡知識與探索"] },
+    ];
+
+    const yearInput = document.getElementById("year");
+    const noteInput = document.getElementById("note");
+    const calcBtn = document.getElementById("calc");
+    const badge = document.getElementById("elementBadge");
+    const traitsBox = document.getElementById("elementTraits");
+    const message = document.getElementById("message");
+
+    function getElementByYear(year) {
+      const offset = (year - 4) % 10;
+      const index = (offset + 10) % 10; // handle negative years gracefully
+      return elementLookup[index];
+    }
+
+    function renderResult() {
+      const year = Number.parseInt(yearInput.value, 10);
+      const note = noteInput.value.trim();
+
+      if (!Number.isFinite(year) || year <= 0) {
+        message.textContent = "請輸入有效的西元年份。";
+        badge.textContent = "等待輸入...";
+        badge.style.background = "#e2e8f0";
+        traitsBox.innerHTML = "";
+        return;
+      }
+
+      const result = getElementByYear(year);
+      message.textContent = note ? `為：${note}` : "";
+      badge.textContent = `${year} 年 → ${result.label}｜天干：${result.stem}`;
+      badge.style.background = result.color;
+      badge.style.color = "#0f172a";
+
+      traitsBox.innerHTML = result.traits
+        .map((item) => `<div>• ${item}</div>`)
+        .join("");
+    }
+
+    calcBtn.addEventListener("click", renderResult);
+    yearInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        renderResult();
+      }
+    });
+  </script>
+</body>
+</html>
